@@ -1,0 +1,104 @@
+<html>
+  <head>
+
+    <link rel="stylesheet" href="testCss.css">
+
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+
+    <script src="https://apis.google.com/js/client.js"></script>
+
+    <script type="text/javascript">
+
+        window.onload = function() {
+
+          gapi.load('auth2', function() {
+              gapi.auth2.init({
+                  client_id: "348957969870-12p3iltomd166v1q5hkjs3tjhau1uud8.apps.googleusercontent.com"
+              });
+          });
+
+        gapi.auth.authorize({
+          client_id: "348957969870-12p3iltomd166v1q5hkjs3tjhau1uud8.apps.googleusercontent.com",
+          scope: 'https://www.googleapis.com/auth/plus.login',
+          immediate: false
+          }, handleAuthResult);
+  
+        
+        // Get the URL of the current page
+        var url = new URL(window.location.href);
+  
+        // Get the value of the "id" parameter from the query string
+        var idValue = url.searchParams.get("id");
+  
+        // Set the value of the "id" input field
+        document.getElementById("id").value = idValue;
+
+        loadSheet()
+      }
+
+      function loadSheet() {
+
+
+        var sheetId = "1wHTrJdAUGqUKoEZgwiq0k45wAZZLLa7tE9ivm8-5TtY";
+        // var apiKey = "AIzaSyCGX9GeKHdMqv-SJYwukRM_U87mM4YB2ZE";
+        var idValue = document.getElementById("id").value;
+        var url = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetId + "/values/A1:E100?key=" + apiKey + "&majorDimension=ROWS";
+
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.onload = function() {
+            var data = JSON.parse(this.response);
+            if (request.status >= 200 && request.status < 400) {
+            var found = false;
+            for (var i = 0; i < data.values.length; i++) {
+                if (data.values[i][0] == idValue) {
+                document.getElementById("name").innerHTML = data.values[i][1];
+                document.getElementById("status").innerHTML = data.values[i][2];
+                document.getElementById("close-direction").innerHTML = data.values[i][3];
+                document.getElementById("notes").innerHTML = data.values[i][4];
+                found = true;
+                break;
+                }
+            }
+            if (!found) {
+                document.getElementById("name").innerHTML = "ID not found.";
+                document.getElementById("status").innerHTML = "ID not found.";
+                document.getElementById("close-direction").innerHTML = "ID not found.";
+                document.getElementById("notes").innerHTML = "ID not found.";
+            }
+            } else {
+            console.error("Error loading sheet:", data);
+            }
+        };
+        request.send();
+        }
+    </script>
+  </head>
+  <body>
+    <form>
+      <label for="id">ID:</label><br>
+      <input type="text" id="id" name="id"><br>
+      <button type="button" onclick="loadSheet()">Load Sheet</button>
+    </form> 
+    <br>
+    <div>
+      <label>Name:</label>
+      <div id="name">Loading...</div>
+    </div>
+    <br>
+    <div>
+      <label>Status:</label>
+      <div id="status">Loading...</div>
+    </div>
+    <br>
+    <div>
+      <label>Close Direction:</label>
+      <div id="close-direction">Loading...</div>
+    </div>
+    <br>
+    <div>
+      <label>Notes:</label>
+      <div id="notes">Loading...</div>
+    </div>
+  </body>
+</html>

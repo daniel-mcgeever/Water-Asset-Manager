@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google OAuth Example</title>
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script>
+        // Your client ID
+        var clientId = "348957969870-12p3iltomd166v1q5hkjs3tjhau1uud8.apps.googleusercontent.com";
+
+        // Array of API discovery doc URLs for APIs used by the quickstart
+        var discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/plus/v1/rest"];
+
+        // Authorization scopes required by the API; multiple scopes can be
+        // included, separated by spaces.
+        var scopes = "https://www.googleapis.com/auth/plus.login";
+
+        function handleClientLoad() {
+            gapi.load('client:auth2', initClient);
+        }
+
+        function initClient() {
+            gapi.client.init({
+                discoveryDocs: discoveryDocs,
+                clientId: clientId,
+                scope: scopes
+            }).then(function () {
+                // Listen for sign-in state changes.
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+                // Handle the initial sign-in state.
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                authorizeButton.onclick = handleAuthClick;
+                signoutButton.onclick = handleSignoutClick;
+            });
+        }
+
+        function updateSigninStatus(isSignedIn) {
+            if (isSignedIn) {
+                authorizeButton.style.display = 'none';
+                signoutButton.style.display = 'block';
+                makeApiCall();
+            } else {
+                authorizeButton.style.display = 'block';
+                signoutButton.style.display = 'none';
+            }
+        }
+
+        function handleAuthClick(event) {
+            gapi.auth2.getAuthInstance().signIn();
+        }
+
+        function handleSignoutClick(event) {
+            gapi.auth2.getAuthInstance().signOut();
+        }
+
+        function makeApiCall() {
+            gapi.client.plus.people.get({
+                'userId': 'me'
+            }).then(function(response) {
+                console.log(response);
+            });
+        }
+    </script>
+</head>
+<body onload="handleClientLoad()">
+    <button id="authorize_button" style="display: none;">Authorize</button>
+    <button id="signout_button" style="display: none;">Sign Out</button>
+    <div id="content"></div>
+</body>
+</html>
